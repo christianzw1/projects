@@ -1,0 +1,96 @@
+*{
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+header {
+    background-color: #111010;
+    padding: 10px;
+    margin: -8px;
+}
+
+nav{
+    background-color: white;
+    margin: -8px;
+    margin-bottom: -20px;
+    margin-top: -16px;
+}
+
+nav p{
+    text-align: center;
+}
+
+header h1{
+    color: gray;
+    text-align: center;
+}
+
+body {
+    background-image: url(fotos/fundo-universo.jpg);
+}
+
+main {
+    background-color: rgb(14, 13, 13);
+    margin: auto;
+    max-width: 800px;
+    margin-top: -20px;
+    padding-bottom: 10px;
+    border-radius: 0px 0px 5px 5px;
+    
+}
+
+main h1{
+    padding-left: 10px;
+    padding-top: 10px;
+    color: gray;
+}
+
+main p{
+    padding-left: 10px;
+    text-align: justify;
+    padding-right: 10px;
+    color: gray;
+    text-indent: 30px;
+}
+
+div.quadrado{
+    height: 300px;
+    max-width: 500px;
+    border: 1px solid black;
+    margin: 5px;
+    border-radius: 10px;
+    position: absolute center;
+}
+
+main div{
+    text-align: center;
+}
+
+div#q1{
+    background-image: url(fotos/patrimonio300.png) ;
+    text-align: center;
+    background-position: center;
+    background-size: contain;
+    
+}
+
+div#q2{
+    background-image: url(fotos/trabalho.png) ;
+    text-align: center;
+    background-size: contain;
+    
+}
+
+p#link1 > strong > a{
+    text-decoration: none;
+    color: white;
+    text-align: center;
+    
+}
+
+p#link2 > strong > a{
+    text-decoration: none;
+    color: white;
+    text-align: center;
+    
+}
+
