@@ -22,7 +22,7 @@
             display: block;
             margin-bottom: 5px;
         }
-        input[type="file"] {
+        input[type="file"], select {
             display: block;
             margin-bottom: 10px;
         }
@@ -38,7 +38,7 @@
             margin: 4px 2px;
             cursor: pointer;
         }
-        #output, #subtitleInfo {
+        #output {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
@@ -57,10 +57,18 @@
         <input type="file" id="videoFile" accept="video/*">
     </div>
     <div class="input-group">
-        <label for="subtitleFile">Selecione o arquivo de legenda (opcional):</label>
+        <label for="subtitleFile">Selecione o arquivo de legenda:</label>
         <input type="file" id="subtitleFile" accept=".srt,.vtt">
     </div>
-    <div id="subtitleInfo"></div>
+    <div class="input-group">
+        <label for="subtitleLanguage">Idioma da legenda:</label>
+        <select id="subtitleLanguage">
+            <option value="ja">Japonês</option>
+            <option value="en">Inglês</option>
+            <option value="pt">Português</option>
+            <option value="other">Outro</option>
+        </select>
+    </div>
     <button id="generateButton">Gerar Condensed Audio MP3</button>
     <div id="output"></div>
     <a id="downloadLink" href="#" download="condensed_audio.mp3">Baixar MP3</a>
@@ -69,6 +77,7 @@
         document.getElementById('generateButton').addEventListener('click', function() {
             const videoFile = document.getElementById('videoFile').files[0];
             const subtitleFile = document.getElementById('subtitleFile').files[0];
+            const subtitleLanguage = document.getElementById('subtitleLanguage').value;
             const output = document.getElementById('output');
             const downloadLink = document.getElementById('downloadLink');
 
@@ -77,11 +86,18 @@
                 return;
             }
 
+            if (!subtitleFile) {
+                output.textContent = "Por favor, selecione um arquivo de legenda.";
+                return;
+            }
+
             output.textContent = "Processando o vídeo e gerando o áudio condensado...";
 
-            // Simulação do processo de geração do áudio condensado
+            // Aqui você adicionaria a lógica real para processar o vídeo e as legendas
+            // Por enquanto, vamos simular o processo
+
             setTimeout(function() {
-                output.textContent = "Áudio condensado gerado com sucesso!";
+                output.textContent = `Áudio condensado gerado com sucesso! Usando legendas em ${getLanguageName(subtitleLanguage)}.`;
                 
                 // Simulação da criação de um arquivo MP3
                 const blob = new Blob(['Conteúdo simulado do MP3'], { type: 'audio/mpeg' });
@@ -94,70 +110,15 @@
             }, 3000);
         });
 
-        function checkForEmbeddedSubtitles(videoFile) {
-            return new Promise((resolve, reject) => {
-                const video = document.createElement('video');
-                video.preload = 'metadata';
-                
-                video.onloadedmetadata = function() {
-                    // Algumas vezes, as faixas podem não estar imediatamente disponíveis
-                    setTimeout(() => {
-                        const tracks = video.textTracks;
-                        const subtitles = [];
-                        
-                        if (tracks && tracks.length > 0) {
-                            for (let i = 0; i < tracks.length; i++) {
-                                if (tracks[i].kind === 'subtitles' || tracks[i].kind === 'captions') {
-                                    subtitles.push({
-                                        language: tracks[i].language || 'Desconhecido',
-                                        label: tracks[i].label || `Legenda ${i + 1}`
-                                    });
-                                }
-                            }
-                        }
-                        
-                        URL.revokeObjectURL(video.src);
-                        resolve(subtitles);
-                    }, 500); // Pequeno atraso para garantir que as faixas sejam carregadas
-                };
-                
-                video.onerror = function() {
-                    URL.revokeObjectURL(video.src);
-                    reject("Erro ao carregar o vídeo");
-                };
-                
-                video.src = URL.createObjectURL(videoFile);
-            });
+        function getLanguageName(code) {
+            const languages = {
+                'ja': 'Japonês',
+                'en': 'Inglês',
+                'pt': 'Português',
+                'other': 'Outro idioma'
+            };
+            return languages[code] || code;
         }
-
-        document.getElementById('videoFile').addEventListener('change', function(event) {
-            const file = event.target.files[0];
-            const subtitleInfo = document.getElementById('subtitleInfo');
-            
-            if (file) {
-                subtitleInfo.textContent = "Verificando legendas...";
-                
-                checkForEmbeddedSubtitles(file)
-                    .then(subtitles => {
-                        if (subtitles.length > 0) {
-                            const japaneseSubtitle = subtitles.find(sub => sub.language.toLowerCase() === 'ja' || sub.language.toLowerCase() === 'jpn');
-                            if (japaneseSubtitle) {
-                                subtitleInfo.textContent = `Legenda em japonês encontrada: ${japaneseSubtitle.label}. Esta será usada prioritariamente.`;
-                            } else {
-                                const subtitleList = subtitles.map(sub => `${sub.language}: ${sub.label}`).join(', ');
-                                subtitleInfo.textContent = `Legendas encontradas: ${subtitleList}. Nenhuma legenda em japonês disponível.`;
-                            }
-                        } else {
-                            subtitleInfo.textContent = "Nenhuma legenda embutida detectada. Por favor, forneça um arquivo de legenda separado se necessário.";
-                        }
-                    })
-                    .catch(error => {
-                        subtitleInfo.textContent = `Erro ao verificar legendas: ${error}. Você pode tentar fazer upload de um arquivo de legenda separado.`;
-                    });
-            } else {
-                subtitleInfo.textContent = "";
-            }
-        });
     </script>
 </body>
 </html>
