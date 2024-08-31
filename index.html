@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Condensed Audio</title>
+    <title>Gerador de Condensed Audio MP3</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,20 +38,20 @@
             margin: 4px 2px;
             cursor: pointer;
         }
-        #output {
+        #output, #subtitleInfo {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
             background-color: #f9f9f9;
         }
-        #subtitleInfo {
-            margin-top: 10px;
-            font-style: italic;
+        #downloadLink {
+            display: none;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Gerador de Condensed Audio</h1>
+    <h1>Gerador de Condensed Audio MP3</h1>
     <div class="input-group">
         <label for="videoFile">Selecione o arquivo de vídeo:</label>
         <input type="file" id="videoFile" accept="video/*">
@@ -61,26 +61,36 @@
         <input type="file" id="subtitleFile" accept=".srt,.vtt">
     </div>
     <div id="subtitleInfo"></div>
-    <button id="generateButton">Gerar Condensed Audio</button>
+    <button id="generateButton">Gerar Condensed Audio MP3</button>
     <div id="output"></div>
+    <a id="downloadLink" href="#" download="condensed_audio.mp3">Baixar MP3</a>
 
     <script>
         document.getElementById('generateButton').addEventListener('click', function() {
             const videoFile = document.getElementById('videoFile').files[0];
             const subtitleFile = document.getElementById('subtitleFile').files[0];
             const output = document.getElementById('output');
+            const downloadLink = document.getElementById('downloadLink');
 
             if (!videoFile) {
                 output.textContent = "Por favor, selecione um arquivo de vídeo.";
                 return;
             }
 
-            output.textContent = "Processando...";
+            output.textContent = "Processando o vídeo e gerando o áudio condensado...";
 
-            // Aqui você adicionaria a lógica para processar o vídeo e gerar o áudio condensado
+            // Simulação do processo de geração do áudio condensado
             setTimeout(function() {
-                output.textContent = "Áudio condensado gerado com sucesso! (Simulação)";
-                // Aqui você poderia adicionar um link para download do áudio gerado
+                output.textContent = "Áudio condensado gerado com sucesso!";
+                
+                // Simulação da criação de um arquivo MP3
+                const blob = new Blob(['Conteúdo simulado do MP3'], { type: 'audio/mpeg' });
+                const url = URL.createObjectURL(blob);
+                
+                downloadLink.href = url;
+                downloadLink.style.display = 'inline-block';
+                
+                output.textContent += " Clique no link abaixo para baixar o arquivo MP3.";
             }, 3000);
         });
 
