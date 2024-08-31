@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerador de Condensed Audio MP3</title>
+    <title>Gerador de Áudio Condensado MP3</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -38,7 +38,7 @@
             margin: 4px 2px;
             cursor: pointer;
         }
-        #output, #subtitleInfo {
+        #output, #subtitleInfo, #processingInfo {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
@@ -48,25 +48,33 @@
             display: none;
             margin-top: 20px;
         }
+        progress {
+            width: 100%;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Gerador de Condensed Audio MP3</h1>
+    <h1>Gerador de Áudio Condensado MP3</h1>
     <div class="input-group">
         <label for="videoFile">Selecione o arquivo de vídeo:</label>
         <input type="file" id="videoFile" accept="video/*">
     </div>
     <button id="uploadButton">Enviar e Processar Vídeo</button>
     <div id="subtitleInfo"></div>
+    <div id="processingInfo"></div>
+    <progress id="processingProgress" value="0" max="100" style="display: none;"></progress>
     <div id="output"></div>
-    <a id="downloadLink" href="#" download="condensed_audio.mp3">Baixar MP3</a>
+    <a id="downloadLink" href="#" download="audio_condensado.mp3">Baixar MP3</a>
 
     <script>
         document.getElementById('uploadButton').addEventListener('click', function() {
             const videoFile = document.getElementById('videoFile').files[0];
             const output = document.getElementById('output');
             const subtitleInfo = document.getElementById('subtitleInfo');
+            const processingInfo = document.getElementById('processingInfo');
             const downloadLink = document.getElementById('downloadLink');
+            const processingProgress = document.getElementById('processingProgress');
 
             if (!videoFile) {
                 output.textContent = "Por favor, selecione um arquivo de vídeo.";
@@ -75,10 +83,11 @@
 
             output.textContent = "Enviando vídeo e processando...";
             subtitleInfo.textContent = "";
+            processingInfo.textContent = "";
             downloadLink.style.display = 'none';
+            processingProgress.style.display = 'block';
+            processingProgress.value = 0;
 
-            // Aqui você faria o upload do arquivo para o servidor
-            // Por enquanto, vamos simular o processo
             simulateServerProcessing(videoFile)
                 .then(result => {
                     subtitleInfo.textContent = `Legendas detectadas: ${result.subtitles.join(', ')}`;
@@ -98,12 +107,33 @@
 
         function simulateServerProcessing(file) {
             return new Promise((resolve, reject) => {
-                // Simula o tempo de processamento no servidor
+                const totalSteps = 5;
+                const processingInfo = document.getElementById('processingInfo');
+                const processingProgress = document.getElementById('processingProgress');
+
+                function updateProgress(step, message) {
+                    processingInfo.textContent = message;
+                    processingProgress.value = (step / totalSteps) * 100;
+                }
+
                 setTimeout(() => {
-                    // Simula a detecção de legendas
-                    const subtitles = ['Japonês', 'Inglês'];
-                    resolve({ subtitles: subtitles });
-                }, 3000);
+                    updateProgress(1, "Extraindo áudio do vídeo...");
+                    setTimeout(() => {
+                        updateProgress(2, "Gerando transcrição...");
+                        setTimeout(() => {
+                            updateProgress(3, "Alinhando transcrição com legendas...");
+                            setTimeout(() => {
+                                updateProgress(4, "Recortando áudio conforme legendas...");
+                                setTimeout(() => {
+                                    updateProgress(5, "Finalizando áudio condensado...");
+                                    processingProgress.style.display = 'none';
+                                    const subtitles = ['Português', 'Inglês'];
+                                    resolve({ subtitles: subtitles });
+                                }, 1000);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
             });
         }
     </script>
