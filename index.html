@@ -38,7 +38,7 @@
             margin: 4px 2px;
             cursor: pointer;
         }
-        #output {
+        #output, #subtitleInfo {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #ddd;
@@ -48,6 +48,9 @@
             display: none;
             margin-top: 20px;
         }
+        #manualSubtitleUpload {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -56,8 +59,9 @@
         <label for="videoFile">Selecione o arquivo de vídeo:</label>
         <input type="file" id="videoFile" accept="video/*">
     </div>
-    <div class="input-group">
-        <label for="subtitleFile">Selecione o arquivo de legenda:</label>
+    <div id="subtitleInfo"></div>
+    <div id="manualSubtitleUpload" class="input-group">
+        <label for="subtitleFile">Nenhuma legenda detectada. Faça upload de um arquivo de legenda:</label>
         <input type="file" id="subtitleFile" accept=".srt,.vtt">
     </div>
     <div class="input-group">
@@ -74,6 +78,79 @@
     <a id="downloadLink" href="#" download="condensed_audio.mp3">Baixar MP3</a>
 
     <script>
+        let embeddedSubtitles = [];
+
+        function checkForEmbeddedSubtitles(videoFile) {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                
+                video.onloadedmetadata = function() {
+                    setTimeout(() => {
+                        const tracks = video.textTracks;
+                        const subtitles = [];
+                        
+                        if (tracks && tracks.length > 0) {
+                            for (let i = 0; i < tracks.length; i++) {
+                                if (tracks[i].kind === 'subtitles' || tracks[i].kind === 'captions') {
+                                    subtitles.push({
+                                        language: tracks[i].language || 'Desconhecido',
+                                        label: tracks[i].label || `Legenda ${i + 1}`
+                                    });
+                                }
+                            }
+                        }
+                        
+                        URL.revokeObjectURL(video.src);
+                        resolve(subtitles);
+                    }, 500);
+                };
+                
+                video.onerror = function() {
+                    URL.revokeObjectURL(video.src);
+                    reject("Erro ao carregar o vídeo");
+                };
+                
+                video.src = URL.createObjectURL(videoFile);
+            });
+        }
+
+        document.getElementById('videoFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            const subtitleInfo = document.getElementById('subtitleInfo');
+            const manualSubtitleUpload = document.getElementById('manualSubtitleUpload');
+            
+            if (file) {
+                subtitleInfo.textContent = "Verificando legendas...";
+                
+                checkForEmbeddedSubtitles(file)
+                    .then(subtitles => {
+                        embeddedSubtitles = subtitles;
+                        if (subtitles.length > 0) {
+                            const japaneseSubtitle = subtitles.find(sub => sub.language.toLowerCase() === 'ja' || sub.language.toLowerCase() === 'jpn');
+                            if (japaneseSubtitle) {
+                                subtitleInfo.textContent = `Legenda em japonês encontrada: ${japaneseSubtitle.label}. Esta será usada prioritariamente.`;
+                                document.getElementById('subtitleLanguage').value = 'ja';
+                            } else {
+                                const subtitleList = subtitles.map(sub => `${sub.language}: ${sub.label}`).join(', ');
+                                subtitleInfo.textContent = `Legendas encontradas: ${subtitleList}`;
+                            }
+                            manualSubtitleUpload.style.display = 'none';
+                        } else {
+                            subtitleInfo.textContent = "Nenhuma legenda embutida detectada.";
+                            manualSubtitleUpload.style.display = 'block';
+                        }
+                    })
+                    .catch(error => {
+                        subtitleInfo.textContent = `Erro ao verificar legendas: ${error}. Você pode fazer upload de um arquivo de legenda separado.`;
+                        manualSubtitleUpload.style.display = 'block';
+                    });
+            } else {
+                subtitleInfo.textContent = "";
+                manualSubtitleUpload.style.display = 'none';
+            }
+        });
+
         document.getElementById('generateButton').addEventListener('click', function() {
             const videoFile = document.getElementById('videoFile').files[0];
             const subtitleFile = document.getElementById('subtitleFile').files[0];
@@ -86,16 +163,14 @@
                 return;
             }
 
-            if (!subtitleFile) {
-                output.textContent = "Por favor, selecione um arquivo de legenda.";
+            if (embeddedSubtitles.length === 0 && !subtitleFile) {
+                output.textContent = "Nenhuma legenda detectada ou selecionada. Por favor, faça upload de um arquivo de legenda.";
                 return;
             }
 
             output.textContent = "Processando o vídeo e gerando o áudio condensado...";
 
-            // Aqui você adicionaria a lógica real para processar o vídeo e as legendas
-            // Por enquanto, vamos simular o processo
-
+            // Simulação do processo de geração do áudio condensado
             setTimeout(function() {
                 output.textContent = `Áudio condensado gerado com sucesso! Usando legendas em ${getLanguageName(subtitleLanguage)}.`;
                 
