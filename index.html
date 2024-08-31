@@ -44,6 +44,10 @@
             border: 1px solid #ddd;
             background-color: #f9f9f9;
         }
+        #subtitleInfo {
+            margin-top: 10px;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +60,7 @@
         <label for="subtitleFile">Selecione o arquivo de legenda (opcional):</label>
         <input type="file" id="subtitleFile" accept=".srt,.vtt">
     </div>
+    <div id="subtitleInfo"></div>
     <button id="generateButton">Gerar Condensed Audio</button>
     <div id="output"></div>
 
@@ -73,31 +78,57 @@
             output.textContent = "Processando...";
 
             // Aqui você adicionaria a lógica para processar o vídeo e gerar o áudio condensado
-            // Como isso requer processamento complexo, vamos simular o processo com um timeout
-
             setTimeout(function() {
                 output.textContent = "Áudio condensado gerado com sucesso! (Simulação)";
                 // Aqui você poderia adicionar um link para download do áudio gerado
             }, 3000);
         });
 
-        // Função para verificar se o vídeo tem legendas embutidas
         function checkForEmbeddedSubtitles(videoFile) {
-            // Esta é uma função simulada. Na prática, você precisaria analisar o container do vídeo
-            // para verificar a presença de faixas de legenda.
-            console.log("Verificando legendas embutidas...");
-            // Retorna true ou false aleatoriamente para simular a detecção
-            return Math.random() < 0.5;
+            return new Promise((resolve, reject) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = function() {
+                    const tracks = video.textTracks;
+                    const subtitles = [];
+                    for (let i = 0; i < tracks.length; i++) {
+                        subtitles.push({
+                            language: tracks[i].language,
+                            label: tracks[i].label
+                        });
+                    }
+                    URL.revokeObjectURL(video.src);
+                    resolve(subtitles);
+                };
+                video.onerror = function() {
+                    URL.revokeObjectURL(video.src);
+                    reject("Erro ao carregar o vídeo");
+                };
+                video.src = URL.createObjectURL(videoFile);
+            });
         }
 
         document.getElementById('videoFile').addEventListener('change', function(event) {
             const file = event.target.files[0];
+            const subtitleInfo = document.getElementById('subtitleInfo');
             if (file) {
-                const hasEmbeddedSubtitles = checkForEmbeddedSubtitles(file);
-                const output = document.getElementById('output');
-                output.textContent = hasEmbeddedSubtitles ? 
-                    "O vídeo parece ter legendas embutidas." : 
-                    "Nenhuma legenda embutida detectada. Por favor, forneça um arquivo de legenda separado se necessário.";
+                checkForEmbeddedSubtitles(file)
+                    .then(subtitles => {
+                        if (subtitles.length > 0) {
+                            const japaneseSubtitle = subtitles.find(sub => sub.language === 'ja');
+                            if (japaneseSubtitle) {
+                                subtitleInfo.textContent = `Legenda em japonês encontrada: ${japaneseSubtitle.label}. Esta será usada prioritariamente.`;
+                            } else {
+                                const subtitleList = subtitles.map(sub => `${sub.language}: ${sub.label}`).join(', ');
+                                subtitleInfo.textContent = `Legendas encontradas: ${subtitleList}. Nenhuma legenda em japonês disponível.`;
+                            }
+                        } else {
+                            subtitleInfo.textContent = "Nenhuma legenda embutida detectada. Por favor, forneça um arquivo de legenda separado se necessário.";
+                        }
+                    })
+                    .catch(error => {
+                        subtitleInfo.textContent = `Erro ao verificar legendas: ${error}`;
+                    });
             }
         });
     </script>
