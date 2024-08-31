@@ -1,45 +1,105 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edições.io</title>
-    <link rel="stylesheet" href="estilo.css">
+    <title>Gerador de Condensed Audio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="file"] {
+            display: block;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+    </style>
 </head>
 <body>
-    
-    <header>
-        <h1>&#x1F4AB;Minhas Edições&#x1F4AB;</h1>
-    
+    <h1>Gerador de Condensed Audio</h1>
+    <div class="input-group">
+        <label for="videoFile">Selecione o arquivo de vídeo:</label>
+        <input type="file" id="videoFile" accept="video/*">
+    </div>
+    <div class="input-group">
+        <label for="subtitleFile">Selecione o arquivo de legenda (opcional):</label>
+        <input type="file" id="subtitleFile" accept=".srt,.vtt">
+    </div>
+    <button id="generateButton">Gerar Condensed Audio</button>
+    <div id="output"></div>
 
-    </header>
-    <nav>
-        <p><strong>Seja bem-vindo!</strong></p>
-    </nav>
-    
-    <main>
-        <h1>Sobre o site:</h1>
-        <p>Este site serve como uma espécie de hospedagem/armazenamento de todos os <strong>vídeos</strong> e <strong>trabalhos</strong> editados por mim, <strong>Cristian</strong>. Neste site você encontrará vídeos feitos para <strong>diversos</strong> propósitos (vídeos de trabalho escolar, vídeos de experiências, vídeos de recordação e vídeos de prática). </p>
+    <script>
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const videoFile = document.getElementById('videoFile').files[0];
+            const subtitleFile = document.getElementById('subtitleFile').files[0];
+            const output = document.getElementById('output');
 
-        <h1>Vídeos Recentes:</h1>
-        <div class="quadrado" id="q1">
-        
+            if (!videoFile) {
+                output.textContent = "Por favor, selecione um arquivo de vídeo.";
+                return;
+            }
 
-        </div>
-        <p id="link1"><strong><a href="patrimonio/patrimonio.html">Clique aqui para ver &#x25B6;</a></strong></p>
+            output.textContent = "Processando...";
 
-        <div class="quadrado" id="q2">
-            
-        </div>
-        <p id="link2"><strong><a href="trabalho/trabalho.html">Clique aqui para ver &#x25B6;</a></strong></p>
+            // Aqui você adicionaria a lógica para processar o vídeo e gerar o áudio condensado
+            // Como isso requer processamento complexo, vamos simular o processo com um timeout
 
-        <div class="quadrado" id="q3">
-            
-        </div>
-        
+            setTimeout(function() {
+                output.textContent = "Áudio condensado gerado com sucesso! (Simulação)";
+                // Aqui você poderia adicionar um link para download do áudio gerado
+            }, 3000);
+        });
 
-    
-    </main>
-    
+        // Função para verificar se o vídeo tem legendas embutidas
+        function checkForEmbeddedSubtitles(videoFile) {
+            // Esta é uma função simulada. Na prática, você precisaria analisar o container do vídeo
+            // para verificar a presença de faixas de legenda.
+            console.log("Verificando legendas embutidas...");
+            // Retorna true ou false aleatoriamente para simular a detecção
+            return Math.random() < 0.5;
+        }
+
+        document.getElementById('videoFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const hasEmbeddedSubtitles = checkForEmbeddedSubtitles(file);
+                const output = document.getElementById('output');
+                output.textContent = hasEmbeddedSubtitles ? 
+                    "O vídeo parece ter legendas embutidas." : 
+                    "Nenhuma legenda embutida detectada. Por favor, forneça um arquivo de legenda separado se necessário.";
+            }
+        });
+    </script>
 </body>
 </html>
